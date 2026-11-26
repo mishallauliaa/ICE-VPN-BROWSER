@@ -1,0 +1,34 @@
+name: Build ICE BROWSER Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install Inno Setup 6
+        shell: powershell
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build application and installer
+        shell: powershell
+        run: .\Scripts\build-windows.ps1
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ICE-BROWSER-Setup-1.4.0-x64
+          path: dist/ICE-BROWSER-Setup-1.4.0-x64.exe
+          if-no-files-found: error
